@@ -32,3 +32,8 @@ Demo for a store management system and  purchase system
 
 ## Database Design
 ![DB Diagram](/library/store-management-db.jpg)
+
+## Start Backend Server
+```bash
+python manage.py runserver
+```
