@@ -28,7 +28,7 @@ import { RouterLink, RouterView } from 'vue-router'
     </div>
     <div class="col-span-5">
       <div class="p-4 border-b"></div>
-      <div class="p-4 h-full">
+      <div class="p-4 overflow-auto">
         <RouterView />
       </div>
     </div>
