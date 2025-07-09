@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import List from '@/components/List.vue'
 import CrudModal from '@/components/CrudModal.vue'
 import DeleteConfirm from '@/components/DeleteConfirm.vue'
@@ -7,7 +7,7 @@ import {useApi} from '@/composables/useApi';
 
 const {get} = useApi();
 
-const headers = [
+const headers = ref([
     {
         label: 'Name',
         property: 'name'
@@ -32,53 +32,12 @@ const headers = [
         label: 'Updated At',
         property: 'updatedAt'
     }
-];
+]);
 
-const items = [
-    {
-        name: 'Lenovo ThinkPad X1',
-        description: 'Carbon Fiber',
-        itemType: 'Laptop',
-        price: '$1450',
-        createdAt: '05-01-2024',
-        updatedAt: '10-03-2024'
-    },
-    {
-        name: 'Dell UltraSharp Monitor',
-        description: '27 inch 4K',
-        itemType: 'Monitor',
-        price: '$599',
-        createdAt: '15-02-2024',
-        updatedAt: '18-03-2024'
-    },
-    {
-        name: 'Logitech MX Master 3S',
-        description: 'Wireless Mouse',
-        itemType: 'Accessories',
-        price: '$99',
-        createdAt: '01-01-2024',
-        updatedAt: '05-01-2024'
-    },
-    {
-        name: 'HP LaserJet Pro',
-        description: 'Mono Printer',
-        itemType: 'Printer',
-        price: '$250',
-        createdAt: '22-11-2023',
-        updatedAt: '02-12-2023'
-    },
-    {
-        name: 'Apple iPad Air',
-        description: '10.9 inch Blue',
-        itemType: 'Tablet',
-        price: '$699',
-        createdAt: '07-06-2024',
-        updatedAt: '07-06-2024'
-    }
-];
+const items = ref();
 
-onMounted(()=>{
-   const i = get('/items/');
+onMounted(async ()=>{
+   items.value = await get('/items');
 });
 
 </script>
@@ -94,7 +53,7 @@ onMounted(()=>{
             </button>
         </div>
 
-        <List :headers="headers" :items="items"/>
+        <List v-if="items" :headers="headers" :items="items"/>
 
         <CrudModal/>
         <DeleteConfirm/>
