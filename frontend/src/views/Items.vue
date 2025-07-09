@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted } from 'vue'
-import { initFlowbite } from 'flowbite'
 import List from '@/components/List.vue'
 import CrudModal from '@/components/CrudModal.vue'
 import DeleteConfirm from '@/components/DeleteConfirm.vue'
+import {useApi} from '@/composables/useApi';
+
+const {get} = useApi();
 
 const headers = [
     {
@@ -75,10 +77,10 @@ const items = [
     }
 ];
 
+onMounted(()=>{
+   const i = get('/items/');
+});
 
-onMounted(() => {
-    initFlowbite()
-})
 </script>
 
 <template>
