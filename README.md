@@ -17,9 +17,6 @@ Demo for a store management system and  purchase system
 - Frontend: Use CSS to make better user experience
 - Rest API needed
 - Validation and Error handling
-  - HTTP Status 200 for CRUD Success with message
-  - HTTP Status 400 for CRUD related user errors
-  - HTTP Status 500 for internal errors
 
 ### Non Functional Requirements
 - API security
