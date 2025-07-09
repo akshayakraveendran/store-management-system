@@ -3,6 +3,7 @@
 
 <template>
     <div>
-        lhjkhkjhh
+    <h1>Type</h1>
+
     </div>
 </template>

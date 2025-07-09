@@ -3,6 +3,7 @@
 
 <template>
     <div>
-        lhjkhkjhh
+    <h1>shipping</h1>
+
     </div>
 </template>

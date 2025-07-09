@@ -3,6 +3,7 @@
 
 <template>
     <div>
-        lhjkhkjhh
+    <h1>purchased item</h1>
+
     </div>
 </template>
