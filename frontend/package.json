@@ -14,7 +14,8 @@
     "axios": "^1.10.0",
     "flowbite": "^3.1.2",
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-toastify": "^0.2.8"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

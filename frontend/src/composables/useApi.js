@@ -53,14 +53,29 @@ export function useApi(endpoint = '') {
     try {
       const response = await apiClient(config)
       data.value = response.data
-      return response.data
+      return response;
     } catch (err) {
+      if(err.status === 400){
+        if(err.response.data){
+          const errorArray = [];
+          const data = err.response.data;
+          Object.keys(data).forEach(property => {
+            errorArray.push(`${property}: ${data[property]}`)
+          });
+
+          if(errorArray.length){
+            return {
+              errors: errorArray
+            };
+          }
+        }
+      }
       error.value = {
         message: err.response?.data?.message || err.message || 'An error occurred',
         status: err.response?.status,
         data: err.response?.data
       }
-      throw err
+      throw error.value
     } finally {
       loading.value = false
     }
