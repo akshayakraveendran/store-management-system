@@ -18,10 +18,15 @@
         />
 
         <ItemsForm 
-            v-model="formItem" 
-            @submit="saveItem"
+            v-model="formItem"
+            :is-visible="showModal"
             :errors="formError"
+            :title="formItem?.id ? 'Edit Item' : 'Add New Item'"
+            modal-id="item-modal"
+            @close="showModal = false"
+            @submit="saveItem"
         />
+
         <DeleteConfirm  @delete="deleteItem()"/>
     </div>
 </template>
@@ -34,6 +39,8 @@ import DeleteConfirm from '@/components/DeleteConfirm.vue'
 import {useApi} from '@/composables/useApi';
 
 const {get, post, put, delete: del  } = useApi();
+
+const showModal = ref(false);
 
 const headers = ref([
     {
@@ -77,13 +84,18 @@ const formError =  ref(null);
 
 const openModal=()=>{
     formItem.value=formItemTemplate.value;
+    formError.value = null;
+    showModal.value = true;
 }
 
 const editItemClicked=(item)=>{
     formItem.value = item;
+        formError.value = null;
+        showModal.value = true;
 }
 
 const deleteItemClicked=(item)=>{
+        formError.value = null;
     formItem.value = item;
 }
 

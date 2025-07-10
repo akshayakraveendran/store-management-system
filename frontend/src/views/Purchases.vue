@@ -22,7 +22,7 @@
             @submit="saveItem"
             :errors="formError"
         />
-        <DeleteConfirm  @delete="deleteItem()"/>
+        <DeleteConfirm  @delete="deleteItem()"/>s        
     </div>
 </template>
 
