@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-wrap gap-8">
+    <div class="flex flex-wrap gap-8" v-if="items">
         <div class="flex flex-wrap gap-4 w-full justify-between">
             <h1 class="font-bold text-2xl">Items</h1>
             <button data-modal-target="crud-modal" data-modal-toggle="crud-modal"
@@ -10,7 +10,7 @@
             </button>
         </div>
 
-        <List v-if="items" 
+        <List 
             :headers="headers" 
             :items="items"
             @edit="e=>editItemClicked(e)"
@@ -22,7 +22,7 @@
             @submit="saveItem"
             :errors="formError"
         />
-        <DeleteConfirm @delete="deleteItem()"/>
+        <DeleteConfirm  @delete="deleteItem()"/>
     </div>
 </template>
 
@@ -107,7 +107,7 @@ const createItem = async () =>{
 }
 
 const updateItem = async () =>{
-    const response = await post(`/items/${formItem.value.id}/`, formItem.value);
+    const response = await put(`/items/${formItem.value.id}/`, formItem.value);
     if(response.data){
         getList();
     }
