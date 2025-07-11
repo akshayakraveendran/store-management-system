@@ -34,7 +34,7 @@ Demo for a store management system and  purchase system
 ![store-management-mockup](/library/store-management-mockup.jpg)
 
 ## Database Design
-![DB Diagram](/library/store-management-db.jpg)
+![DB Diagram](/library/store-management-db-new.png)
 
 ## Start Backend Server
 ```bash
