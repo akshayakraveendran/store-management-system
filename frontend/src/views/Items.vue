@@ -1,152 +1,173 @@
 <template>
-    <div class="flex flex-wrap gap-8" v-if="items">
-        <div class="flex flex-wrap gap-4 w-full justify-between">
-            <h1 class="font-bold text-2xl">Items</h1>
-            <button data-modal-target="crud-modal" data-modal-toggle="crud-modal"
-                class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                type="button" @click="openModal()"
-                >
-                Add
-            </button>
-        </div>
-
-        <List 
-            :headers="headers" 
-            :items="items"
-            @edit="e=>editItemClicked(e)"
-            @delete="e=>deleteItemClicked(e)"
-        />
-
-        <ItemsForm 
-            v-model="formItem"
-            :is-visible="showModal"
-            :errors="formError"
-            :title="formItem?.id ? 'Edit Item' : 'Add New Item'"
-            modal-id="item-modal"
-            @close="showModal = false"
-            @submit="saveItem"
-        />
-
-        <DeleteConfirm  @delete="deleteItem()"/>
+  <div class="flex flex-wrap gap-8" v-if="items">
+    <div class="flex flex-wrap gap-4 w-full justify-between">
+      <h1 class="font-bold text-2xl">Items</h1>
+      <button
+        class="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        type="button"
+        @click="openModal()"
+      >
+        Add
+      </button>
     </div>
+
+    <List
+      :headers="headers"
+      :items="itemTypeName"
+      @edit="editItemClicked"
+      @delete="deleteItemClicked"
+    />
+
+    <!-- Item Form Modal -->
+    <ItemsForm
+      v-if="showModal"
+      v-model="formItem"
+      :is-visible="showModal"
+      :errors="formError"
+      :title="formItem?.id ? 'Edit Item' : 'Add New Item'"
+      modal-id="item-modal"
+      @close="showModal = false"
+      @submit="saveItem"
+    />
+
+    <!-- Delete Confirmation Modal -->
+    <ItemTypesDelete
+      :is-visible="showDeleteModal"
+      @close="showDeleteModal = false"
+      @confirm="confirmDelete"
+    />
+  </div>
 </template>
 
 <script setup>
-import { onMounted, ref, registerRuntimeCompiler } from 'vue'
+import { ref, onMounted } from 'vue'
 import List from '@/components/List.vue'
 import ItemsForm from '@/components/ItemsForm.vue'
-import DeleteConfirm from '@/components/DeleteConfirm.vue'
-import {useApi} from '@/composables/useApi';
+import ItemTypesDelete from '@/components/ItemTypesDelete.vue'
+import { useApi } from '@/composables/useApi'
+import { computed } from 'vue'
 
-const {get, post, put, delete: del  } = useApi();
+const itemTypes = ref([])
+const { get, post, put, delete: del } = useApi()
 
-const showModal = ref(false);
+// State references
+const showModal = ref(false)
+const showDeleteModal = ref(false)
+const items = ref([])
+const formItem = ref(null)
+const formError = ref(null)
 
+const formItemTemplate = {
+  id: null,
+  name: '',
+  description: '',
+  price: '',
+  created_at: '',
+  updated_at: '',
+  item_type: ''
+}
+
+// Table headers
 const headers = ref([
-    {
-        label: 'Name',
-        property: 'name'
-    },
-    {
-        label: 'Description',
-        property: 'description'
-    },
-    {
-        label: 'Price',
-        property: 'price'
-    },
-    {
-        label: 'Item Type',
-        property: 'itemType'
-    },
-    {
-        label: 'Created At',
-        property: 'createdAt'
-    },
-    {
-        label: 'Updated At',
-        property: 'updatedAt'
-    }
-]);
+  { label: 'Name', property: 'name' },
+  { label: 'Description', property: 'description' },
+  { label: 'Price', property: 'price' },
+  { label: 'Item Type', property: 'item_type' },
+  { label: 'Created At', property: 'created_at' },
+  { label: 'Updated At', property: 'updated_at' }
+])
 
-const items = ref();
-const formItem = ref(null);
-const formItemTemplate=ref({
-    "id": null,
-    "name": null,
-    "description": null,
-    "price": null,
-    "created_at": null,
-    "updated_at": null,
-    "item_type": null
-});
-const formError =  ref(null);
-
-const openModal=()=>{
-    formItem.value=formItemTemplate.value;
-    formError.value = null;
-    showModal.value = true;
+// Open modal for new item
+const openModal = () => {
+  formItem.value = { ...formItemTemplate }
+  formError.value = null
+  showModal.value = true
 }
 
-const editItemClicked=(item)=>{
-    formItem.value = item;
-        formError.value = null;
-        showModal.value = true;
+// Edit existing item
+const editItemClicked = (item) => {
+  formItem.value = { ...item }
+  formError.value = null
+  showModal.value = true
 }
 
-const deleteItemClicked=(item)=>{
-        formError.value = null;
-    formItem.value = item;
+// Delete confirmation
+const deleteItemClicked = (item) => {
+  formItem.value = item
+  showDeleteModal.value = true
 }
 
+// Confirm delete
+const confirmDelete = async () => {
+  await deleteItem(formItem.value.id)
+  await getList()
+  showDeleteModal.value = false
+}
+
+// Fetch all items
 const getList = async () => {
-    const response = await get('/items');
-    if(response.status === 200){
-        items.value = response.data;
-    }
+  const response = await get('/items')
+  if (response.status === 200) {
+    items.value = response.data
+  }
 }
 
-const createItem = async () =>{
-    const response = await post('/items/', formItem.value);
-    if(response.errors){
-        console.log(response);
-        formError.value = response.errors;
-        return;
-    }
-
-    await getList();
-
+const getItemTypes = async () => {
+  const response = await get('/item-types');
+  if (response.status === 200) {
+    itemTypes.value = response.data;
+  }
 }
 
-const updateItem = async () =>{
-    const response = await put(`/items/${formItem.value.id}/`, formItem.value);
-    if(response.data){
-        getList();
+const itemTypeName = computed(() => {
+  if (!items.value || !itemTypes.value) return []
+
+  return items.value.map(item => {
+    const type = itemTypes.value.find(t => t.id === item.item_type)
+    return {
+      ...item,
+      itemType: type ? type.name : 'Unknown'
     }
+  })
+})
+// Create new item
+const createItem = async () => {
+  const response = await post('/items/', formItem.value)
+  if (response.errors) {
+    formError.value = response.errors
+    return
+  }
+  await getList()
+  showModal.value = false
 }
 
+// Update existing item
+const updateItem = async () => {
+  const response = await put(`/items/${formItem.value.id}/`, formItem.value)
+  if (response.data) {
+    await getList()
+    showModal.value = false
+  }
+}
+
+// Save item handler (create or update)
 const saveItem = async () => {
-    if(!formItem.value) return;
+  if (!formItem.value) return
 
-    if(!formItem.value.id) {
-        await createItem();
-        return;
-    }
-
-    updateItem();
+  if (!formItem.value.id) {
+    await createItem()
+  } else {
+    await updateItem()
+  }
 }
 
-const deleteItem = async () => {
-    if(!formItem.value) return;
-
-    const response = await del(`/items/${formItem.value.id}/`);
-    getList();
+// Delete item
+const deleteItem = async (id) => {
+  await del(`/items/${id}/`)
 }
 
-
-onMounted(async ()=>{
-    await getList();
-});
-
+onMounted(async () => {
+  await getList()
+  await getItemTypes();
+})
 </script>
-
