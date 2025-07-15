@@ -1,67 +1,70 @@
-# Ignore all __pycache__ folders
-__pycache__/
-
-backend/store_management_app/migrations/_pycache_/
-backend/store_management_app/__pycache__/*
-backend/store_management_backend/__pycache__/
-
-frontend/.vite/
-frontend/.vscode/
-frontend/.node_modules/
-frontend/.package-lock.json/
-
-# Python cache files
+# ===================
+# PYTHON & DJANGO
+# ===================
 __pycache__/
 *.py[cod]
 *$py.class
+*.log
+*.sqlite3
+*.sqlite3-journal
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+media/
+*.env
 
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+# Django migrations (optional)
+**/migrations/*.pyc
+**/migrations/__pycache__/
 
-# Virtual environments
+# ===================
+# ENVIRONMENTS
+# ===================
 .env
-.venv
+.venv/
 env/
 venv/
 ENV/
 env.bak/
 venv.bak/
+.Python
 
-# Django specific
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media/
+# ===================
+# PACKAGE / BUILD
+# ===================
+build/
+dist/
+downloads/
+.eggs/
+*.egg
+*.egg-info/
+MANIFEST
+develop-eggs/
+sdist/
+wheels/
+lib/
+lib64/
+parts/
+.installed.cfg
 
-# IDE
+# ===================
+# NODE.JS FRONTEND
+# ===================
+node_modules/
+.vite/
+package-lock.json
+
+# ===================
+# IDE & EDITOR FILES
+# ===================
 .vscode/
 .idea/
-*.swp
 *.swo
+*.swp
 *~
 
-# OS
+# ===================
+# OS FILES
+# ===================
 .DS_Store
 Thumbs.db
-<<<<<<< Updated upstream
-backend/store_management_app/__pycache__/
-=======
-*.pyc
->>>>>>> Stashed changes
