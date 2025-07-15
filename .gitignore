@@ -1,5 +1,5 @@
 backend/store_management_app/migrations/_pycache_/
-backend/store_management_app/__pycache__/
+backend/store_management_app/__pycache__/*
 backend/store_management_backend/__pycache__/
 
 frontend/.vite/
@@ -57,3 +57,4 @@ media/
 # OS
 .DS_Store
 Thumbs.db
+backend/store_management_app/__pycache__/
