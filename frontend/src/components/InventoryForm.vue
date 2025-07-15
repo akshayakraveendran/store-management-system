@@ -17,6 +17,30 @@
 
             <form class="p-4 md:p-5" @submit.prevent="handleSubmit" v-if="modelValue">
                 <div class="grid gap-4 mb-4 grid-cols-2">
+                    <div class="col-span-2 sm:col-span-1">
+                        <label for="item"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item</label>
+                        <select v-model="modelValue.item" 
+                            @change="onItemChange"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
+                            <option value="">Select an item</option>
+                            <option
+                            v-for="item in items"
+                            :key="item.id"
+                            :value="item.id"
+                            >
+                            {{ item.name }}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-span-2 sm:col-span-1">
+                        <label for="stock"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Stock</label>
+                            <input :value="modelValue.stock" @input="updateField('stock', $event.target.value)"
+                                type="number" name="stock" id="stock" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                placeholder="Enter Stock" required>
+                    </div>
                     <div class="col-span-2">
                         <label for="description"
                             class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
@@ -24,27 +48,6 @@
                             @input="updateField('description', $event.target.value)" id="description" rows="4"
                             class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                             placeholder="Write description here"></textarea>
-                    </div>
-
-                    <div class="col-span-2 sm:col-span-1">
-                        <label for="quantity"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
-                        <input :value="modelValue.quantity" @input="updateField('quantity', $event.target.value)"
-                            type="number" name="quantity" id="quantity" step="0.01"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                            placeholder="Enter quantity" required>
-                    </div>
-
-                    <div class="col-span-2 sm:col-span-1">
-                        <label for="item"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item</label>
-                        <select v-model="modelValue.item" 
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500">
-                            <option value="">Select an item</option>
-                            <template v-for="item in items" :key="item.id">
-                                <option :value="item.id">{{ item.name }}</option>
-                            </template>
-                        </select>
                     </div>
                 </div>
 
@@ -101,7 +104,6 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'close', 'submit'])
 
 const showModal = ref(props.isVisible)
-
 const updateField = (field, value) => {
     const updated = { ...props.modelValue }
     updated[field] = value
@@ -110,6 +112,7 @@ const updateField = (field, value) => {
 
 const handleSubmit = () => {
     emit('submit', props.modelValue)
+    emit('close')
 }
 
 const handleModalClose = () => {
@@ -138,6 +141,13 @@ const getItems = async () => {
         items.value = response.data;
     }
 }
+
+const onItemChange = () => {
+  const selected = items.value.find(t => t.id === props.modelValue.item);
+  if (selected) {
+    props.modelValue.description = selected.description; 
+  }
+};
 
 onMounted(async () => {
     await getItems()

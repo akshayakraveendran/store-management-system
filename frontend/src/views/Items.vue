@@ -72,7 +72,7 @@ const headers = ref([
   { label: 'Name', property: 'name' },
   { label: 'Description', property: 'description' },
   { label: 'Price', property: 'price' },
-  { label: 'Item Type', property: 'item_type' },
+  { label: 'Item Type', property: 'itemType' },
   { label: 'Created At', property: 'created_at' },
   { label: 'Updated At', property: 'updated_at' }
 ])

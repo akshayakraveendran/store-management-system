@@ -43,6 +43,7 @@ class Purchase(models.Model):
     discount_amount=models.DecimalField(max_digits=10, decimal_places=2)
     tax_amount=models.DecimalField(max_digits=10, decimal_places=2)
     sub_total=models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_address=models.CharField(max_length=255)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
@@ -55,15 +56,5 @@ class PurchasedItem(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
-class Shipping(models.Model):
 
-    recipient_name=models.CharField(max_length=50)
-    address=models.CharField(max_length=255)
-    city=models.CharField(max_length=50)
-    state=models.CharField(max_length=50)
-    country=models.CharField(max_length=50)
-    pin=models.CharField(max_length=10)
-    purchase=models.ForeignKey(Purchase, on_delete=models.CASCADE, null=True)
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
 

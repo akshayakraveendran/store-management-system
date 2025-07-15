@@ -12,7 +12,7 @@
 
         <List 
             :headers="headers" 
-            :items="items"
+            :items="inventoryList"
             @edit="e=>editItemClicked(e)"
             @delete="e=>deleteItemClicked(e)"
         />
@@ -21,12 +21,16 @@
              v-model="formItem"
             :is-visible="showModal"
             :errors="formError"
-            :title="formItem?.id ? 'Edit Item' : 'Add New Item'"
+            :title="formItem?.id ? 'Edit Inventory' : 'Add New Inventory'"
             modal-id="item-modal"
             @close="showModal = false"
             @submit="saveItem"
         />
-        <DeleteConfirm  @delete="deleteItem()"/>
+        <ItemTypesDelete
+            :is-visible="showDeleteModal"
+            @close="showDeleteModal = false"
+            @confirm="confirmDelete"
+    />
     </div>
 </template>
 
@@ -34,13 +38,15 @@
 import { onMounted, ref } from 'vue'
 import List from '@/components/List.vue'
 import InventoryForm from '@/components/InventoryForm.vue'
-import DeleteConfirm from '@/components/DeleteConfirm.vue'
+import ItemTypesDelete from '@/components/ItemTypesDelete.vue'
 import {useApi} from '@/composables/useApi';
+import { computed } from 'vue'
 
 const {get, post, put, delete: del  } = useApi();
 
 const showModal = ref(false);
-
+const showDeleteModal = ref(false)
+const items = ref([])
 
 const headers = ref([
     
@@ -49,32 +55,32 @@ const headers = ref([
         property: 'description'
     },
     {
-        label: 'Quantity',
-        property: 'quantity'
+        label: 'Stock',
+        property: 'stock'
     },
     {
         label: 'Item',
-        property: 'item'
+        property: 'itemVal'
     },
     {
         label: 'Created At',
-        property: 'createdAt'
+        property: 'created_at'
     },
     {
         label: 'Updated At',
-        property: 'updatedAt'
+        property: 'updated_at'
     }
 ]);
 
-const items = ref();
+const inventory = ref();
 const formItem = ref(null);
 const formItemTemplate=ref({
     "id": null,
     "description": null,
-    "quantity": null,
+    "stock": null,
     "created_at": null,
     "updated_at": null,
-    "item": null
+    "item_val": null
 });
 const formError =  ref(null);
 
@@ -89,18 +95,43 @@ const editItemClicked=(item)=>{
         formError.value = null;
         showModal.value = true;
 }
+const deleteItemClicked = (item) => {
+  formItem.value = item
+  showDeleteModal.value = true
+}
 
-const deleteItemClicked=(item)=>{
-        formError.value = null;
-    formItem.value = item;
+// Confirm delete
+const confirmDelete = async () => {
+  await deleteItem(formItem.value.id)
+  await getList()
+  showDeleteModal.value = false
 }
 
 const getList = async () => {
     const response = await get('/inventory');
     if(response.status === 200){
-        items.value = response.data;
+        inventory.value = response.data;
     }
 }
+const getItems = async () => {
+  const response = await get('/items');
+  if (response.status === 200) {
+    items.value = response.data;
+    console.log(items.value);
+  }
+}
+
+const inventoryList = computed(() => {
+  if (!inventory.value || !items.value) return []
+
+  return inventory.value.map(inv => {
+    const type = items.value.find(t => t.id === inv.item)
+    return {
+      ...inv,
+      itemVal: type ? type.name : 'Unknown'
+    }
+  })
+})
 
 const createItem = async () =>{
     const response = await post('/inventory/', formItem.value);
@@ -132,16 +163,13 @@ const saveItem = async () => {
     updateItem();
 }
 
-const deleteItem = async () => {
-    if(!formItem.value) return;
-
-    const response = await del(`/inventory/${formItem.value.id}/`);
-    getList();
+const deleteItem = async (id) => {
+  await del(`/inventory/${id}/`)
 }
-
 
 onMounted(async ()=>{
     await getList();
+    await getItems();
 });
 
 </script>
