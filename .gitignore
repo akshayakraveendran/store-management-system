@@ -1,70 +1,34 @@
-# ===================
-# PYTHON & DJANGO
-# ===================
+# Byte-compiled / cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.log
-*.sqlite3
-*.sqlite3-journal
-local_settings.py
+
+# Django database
 db.sqlite3
 db.sqlite3-journal
-media/
-*.env
 
-# Django migrations (optional)
-**/migrations/*.pyc
-**/migrations/__pycache__/
-
-# ===================
-# ENVIRONMENTS
-# ===================
+# Environment
 .env
 .venv/
 env/
 venv/
-ENV/
-env.bak/
-venv.bak/
-.Python
 
-# ===================
-# PACKAGE / BUILD
-# ===================
-build/
-dist/
-downloads/
-.eggs/
-*.egg
-*.egg-info/
-MANIFEST
-develop-eggs/
-sdist/
-wheels/
-lib/
-lib64/
-parts/
-.installed.cfg
+# Logs
+*.log
 
-# ===================
-# NODE.JS FRONTEND
-# ===================
-node_modules/
-.vite/
-package-lock.json
-
-# ===================
-# IDE & EDITOR FILES
-# ===================
+# IDEs
 .vscode/
 .idea/
-*.swo
-*.swp
-*~
 
-# ===================
-# OS FILES
-# ===================
+# Node modules (for frontend)
+node_modules/
+.package-lock.json
+.vite/
+
+# Build
+build/
+dist/
+
+# System files
 .DS_Store
 Thumbs.db

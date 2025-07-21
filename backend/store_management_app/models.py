@@ -37,6 +37,17 @@ class Inventory(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
+class Customer(models.Model):
+
+    name = models.CharField(max_length=255)
+    email=models.EmailField(max_length=100)
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+    city = models.CharField(max_length=50)
+    pincode = models.CharField(max_length=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
 class Purchase(models.Model):
 
     total_price=models.DecimalField(max_digits=10, decimal_places=2)
@@ -44,17 +55,20 @@ class Purchase(models.Model):
     tax_amount=models.DecimalField(max_digits=10, decimal_places=2)
     sub_total=models.DecimalField(max_digits=10, decimal_places=2)
     shipping_address=models.CharField(max_length=255)
+    customer=models.ForeignKey(Customer, on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
 class PurchasedItem(models.Model):
 
-    item=models.ForeignKey(Item, on_delete=models.CASCADE)
-    purchase=models.ForeignKey(Purchase, on_delete=models.CASCADE)
-    quantity=models.DecimalField(max_digits=10, decimal_places=2)
-    price=models.DecimalField(max_digits=10, decimal_places=2)
+    purchase = models.ForeignKey(Purchase, related_name='items', on_delete=models.CASCADE)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=1)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
+
+
 
 
 

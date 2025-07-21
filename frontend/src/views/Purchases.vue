@@ -12,49 +12,60 @@
 
         <List 
             :headers="headers" 
-            :items="items"
+            :items="inventoryList"
             @edit="e=>editItemClicked(e)"
             @delete="e=>deleteItemClicked(e)"
         />
 
         <PurchaseForm 
-            v-model="formItem" 
-            @submit="saveItem"
+             v-model="formItem"
+            :is-visible="showModal"
             :errors="formError"
+            :title="formItem?.id ? 'Edit Purchase' : 'Add New Purchase'"
+            modal-id="item-modal"
+            @close="showModal = false"
+            @submit="saveItem"
         />
-        <DeleteConfirm  @delete="deleteItem()"/>s        
+        <ItemTypesDelete
+            :is-visible="showDeleteModal"
+            @close="showDeleteModal = false"
+            @confirm="confirmDelete"
+    />
     </div>
 </template>
 
 <script setup>
-import { onMounted, ref, registerRuntimeCompiler } from 'vue'
+import { onMounted, ref } from 'vue'
 import List from '@/components/List.vue'
-import PurchaseForm from '@/components/PurchaseForm.vue'
-import DeleteConfirm from '@/components/DeleteConfirm.vue'
+import InventoryForm from '@/components/InventoryForm.vue'
+import ItemTypesDelete from '@/components/ItemTypesDelete.vue'
 import {useApi} from '@/composables/useApi';
+import { computed } from 'vue'
+import PurchaseForm from '@/components/PurchaseForm.vue';
 
 const {get, post, put, delete: del  } = useApi();
 
+const showModal = ref(false);
+const showDeleteModal = ref(false)
+const items = ref([])
+
 const headers = ref([
+    
     {
-        label: 'Date',
+        label: 'Description',
+        property: 'description'
+    },
+    {
+        label: 'Quantity',
+        property: 'quantity'
+    },
+    {
+        label: 'Item',
+        property: 'itemVal'
+    },
+    {
+        label: 'Created At',
         property: 'created_at'
-    },
-    {
-        label: 'Total Price',
-        property: 'total_price'
-    },
-    {
-        label: 'Tax Amount',
-        property: 'tax_amount'
-    },
-    {
-        label: 'Discount',
-        property: 'discount_amount'
-    },
-    {
-        label: 'Sub Total',
-        property: 'sub_total'
     },
     {
         label: 'Updated At',
@@ -62,38 +73,66 @@ const headers = ref([
     }
 ]);
 
-const items = ref();
+const inventory = ref();
 const formItem = ref(null);
 const formItemTemplate=ref({
-        "id": null,
-        "total_price": null,
-        "discount_amount": null,
-        "tax_amount": null,
-        "sub_total": null,
-        "created_at": null,
-        "updated_at": null,
-        "shipping": null
-    },);
+    "id": null,
+    "description": null,
+    "quantity": null,
+    "created_at": null,
+    "updated_at": null,
+    "item_val": null
+});
 const formError =  ref(null);
 
 const openModal=()=>{
     formItem.value=formItemTemplate.value;
+    formError.value = null;
+    showModal.value = true;
 }
 
 const editItemClicked=(item)=>{
     formItem.value = item;
+        formError.value = null;
+        showModal.value = true;
+}
+const deleteItemClicked = (item) => {
+  formItem.value = item
+  showDeleteModal.value = true
 }
 
-const deleteItemClicked=(item)=>{
-    formItem.value = item;
+// Confirm delete
+const confirmDelete = async () => {
+  await deleteItem(formItem.value.id)
+  await getList()
+  showDeleteModal.value = false
 }
 
 const getList = async () => {
     const response = await get('/purchases');
     if(response.status === 200){
-        items.value = response.data;
+        inventory.value = response.data;
     }
 }
+const getItems = async () => {
+  const response = await get('/items');
+  if (response.status === 200) {
+    items.value = response.data;
+    console.log(items.value);
+  }
+}
+
+const inventoryList = computed(() => {
+  if (!inventory.value || !items.value) return []
+
+  return inventory.value.map(inv => {
+    const type = items.value.find(t => t.id === inv.item)
+    return {
+      ...inv,
+      itemVal: type ? type.name : 'Unknown'
+    }
+  })
+})
 
 const createItem = async () =>{
     const response = await post('/purchases/', formItem.value);
@@ -125,16 +164,13 @@ const saveItem = async () => {
     updateItem();
 }
 
-const deleteItem = async () => {
-    if(!formItem.value) return;
-
-    const response = await del(`/purchases/${formItem.value.id}/`);
-    getList();
+const deleteItem = async (id) => {
+  await del(`/purchases/${id}/`)
 }
-
 
 onMounted(async ()=>{
     await getList();
+    await getItems();
 });
 
 </script>

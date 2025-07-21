@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
-from .models import Item, ItemType,Inventory, Purchase,PurchasedItem
-from .serializers import ItemSerializer, ItemTypeSerializer,InventorySerializer, PurchaseSerializer,PurchasedItemSerializer
+from .models import Item, ItemType,Inventory, Purchase,PurchasedItem,Customer
+from .serializers import ItemSerializer, ItemTypeSerializer,InventorySerializer, PurchaseSerializer,PurchasedItemSerializer,CustomerSerializer
 
 class ItemTypeViewSet(viewsets.ModelViewSet):
     queryset=ItemType.objects.all()
@@ -22,5 +22,9 @@ class PurchaseViewSet(viewsets.ModelViewSet):
 class PurchaseItemViewSet(viewsets.ModelViewSet):
     queryset=PurchasedItem.objects.all()
     serializer_class=PurchasedItemSerializer
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset=Customer.objects.all()
+    serializer_class=CustomerSerializer
 
 
