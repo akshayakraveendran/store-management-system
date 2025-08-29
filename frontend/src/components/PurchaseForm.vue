@@ -1,95 +1,133 @@
 <template>
   <CustomPopup
-    v-model="showModal"
+    v-model="visible"
     :title="title"
     :modal-id="modalId"
     :close-on-backdrop="true"
     :close-on-escape="true"
-    @close="handleModalClose"
-    @confirm="handleModalConfirm"
+    @close="handleClose"
+    @confirm="handleSubmit"
   >
     <template #body>
-      <!-- Display validation and stock errors -->
-      <div class="p-4" v-if="errors && errors.length">
-        <div
-          v-for="(error, property) in errors"
-          :key="property"
-          class="flex items-center p-2 mb-2 text-xs text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-          role="alert"
-        >
-          <svg class="shrink-0 inline w-4 h-4 me-3" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-            />
-          </svg>
-          <div><span class="font-medium">{{ error }}</span></div>
+      <form @submit.prevent="handleSubmit" class="space-y-4">
+       <div>
+          <label class="block text-sm font-medium text-gray-700">Customer</label>
+          <select
+            v-model="localModel.customer"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          >
+            <option value="" disabled>Select Purchases</option>
+            <option
+              v-for="type in customers"
+              :key="type.id"
+              :value="type.id"
+            >
+              {{ type.name }}
+            </option>
+          </select>
+          <p v-if="errors?.purchase" class="text-sm text-red-600">{{ errors.purchase[0] }}</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Item</label>
+          <select
+            v-model="localModel.item"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          >
+            <option value="" disabled>Select Items</option>
+            <option
+              v-for="type in customers"
+              :key="type.id"
+              :value="type.id"
+            >
+              {{ type.name }}
+            </option>
+          </select>
+          <p v-if="errors?.customer" class="text-sm text-red-600">{{ errors.customer[0] }}</p>
+        </div>
+      <div class="flex space-x-4">
+        <div class="w-1/2">
+          <label class="block text-sm font-medium text-gray-700">Quantity</label>
+          <input
+            type="number"
+            v-model="localModel.quantity"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.quantity" class="text-sm text-red-600">{{ errors.quantity[0] }}</p>
+        </div>
+
+        <div class="w-1/2">
+          <label class="block text-sm font-medium text-gray-700">Price</label>
+          <input
+            type="number"
+            v-model="localModel.price"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.price" class="text-sm text-red-600">{{ errors.price[0] }}</p>
         </div>
       </div>
 
-      <form class="p-4 md:p-5 max-h-[300px] overflow-y-auto" @submit.prevent="handleSubmit">
-        <div v-for="(entry, index) in formItems" :key="index" class="grid gap-4 mb-4 grid-cols-2">
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Item</label>
-            <select
-              v-model="entry.item"
-              @change="() => onItemChange(entry)"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-            >
-              <option value="">Select an item</option>
-              <option v-for="inv in invItems" :key="inv.item" :value="inv.item">
-                {{ items.find(i => i.id === inv.item)?.name || 'Unknown' }}
-              </option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Price</label>
-            <input
-              type="number"
-              :value="entry.price"
-              readonly
-              class="bg-gray-200 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Quantity</label>
-            <input
-              type="number"
-              v-model="entry.quantity"
-              min="1"
-              @change="() => getstocks(entry)"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:text-white"
-            />
-          </div>
+      <div class="flex space-x-4">
+        <div class="w-1/2">
+          <label class="block text-sm font-medium text-gray-700">Total Price</label>
+          <input
+            type="number"
+            v-model="localModel.total_price"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.total_price" class="text-sm text-red-600">{{ errors.total_price[0] }}</p>
         </div>
 
-        <div class="mb-4">
-          <button type="button" @click="addItem" class="text-sm text-blue-600">+ Add Another Item</button>
+        <div class="w-1/2">
+          <label class="block text-sm font-medium text-gray-700">Discount Amount</label>
+          <input
+            type="number"
+            v-model="localModel.discount_amount"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.discount_amount" class="text-sm text-red-600">{{ errors.discount_amount[0] }}</p>
         </div>
-        <div class="col-span-2">
-                        <label for="description"
-                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Shipping Addess</label>
-                        <textarea :value="modelValue.description"
-                            @input="updateField('description', $event.target.value)" id="description" rows="4"
-                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Write description here"></textarea>
-                    </div>
-        <div v-if="stockError" class="text-red-600 text-sm mb-4">{{ stockError }}</div>
+      </div>  
+      <div class="flex space-x-4">
+        <div class="w-1/2">
+          <label class="block text-sm font-medium text-gray-700">Tax Amount</label>
+          <input
+            type="number"
+            v-model="localModel.tax_amount"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.tax_amount" class="text-sm text-red-600">{{ errors.tax_amount[0] }}</p>
+        </div>
 
+        <div class="w-1/2">
+          <label class="block text-sm font-medium text-gray-700">Shipping Address</label>
+          <input
+            type="number"
+            v-model="localModel.shipping_address"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.shipping_address" class="text-sm text-red-600">{{ errors.shipping_address[0] }}</p>
+        </div>
+      </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Sub Total</label>
+          <input
+            type="number"
+            v-model="localModel.sub_total"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-blue-200"
+          />
+          <p v-if="errors?.sub_total" class="text-sm text-red-600">{{ errors.sub_total[0] }}</p>
+        </div>
+
+        <div class="pt-4 flex justify-end">
         <button
-          type="submit"
-          class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+            type="button"
+            @click="handleSubmit"
+            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition relative right-120"
         >
-          <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-            <path
-              fill-rule="evenodd"
-              d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-              clip-rule="evenodd"
-            ></path>
-          </svg>
-          Submit Purchase
+            Add Item
         </button>
+       </div>
       </form>
     </template>
   </CustomPopup>
@@ -97,68 +135,82 @@
 
 <script setup>
 import { ref, watch, onMounted } from 'vue'
-import CustomPopup from './CustomPopup.vue'
+import CustomPopup from '@/components/CustomPopup.vue'
 import { useApi } from '@/composables/useApi'
+
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: () => ({})
+  },
+  errors: {
+    type: Object,
+    default: null
+  },
+  title: {
+    type: String,
+    default: 'Form Title'
+  },
+  modalId: {
+    type: String,
+    default: 'item-modal'
+  },
+  isVisible: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'submit', 'close'])
 
 const { get } = useApi()
 
-const items = ref([])
-const invItems = ref([])
-const stockError = ref(null)
-const formItems = ref([{ item: null, price: 0, quantity: 1 }])
+const visible = ref(props.isVisible)
+const localModel = ref({ ...props.modelValue })
+const customers = ref([]) 
+const items = ref([]) 
 
-const props = defineProps({
-  isVisible: Boolean,
-  title: String,
-  modalId: String,
-  errors: Array,
-  items: Array
-})
-
-const emit = defineEmits(['close', 'submit'])
-const showModal = ref(props.isVisible)
-
-const handleSubmit = () => {
-  emit('submit', formItems.value)
-  emit('close')
-}
-
-const handleModalClose = () => emit('close')
-const handleModalConfirm = () => emit('close')
-
-const addItem = () => {
-  formItems.value.push({ item: null, price: 0, quantity: 1 })
-}
-
-const onItemChange = (entry) => {
-  const itemDetail = items.value.find(i => i.id === entry.item)
-  entry.price = itemDetail ? itemDetail.price : 0
-  getstocks(entry)
-}
-
-const getstocks = (entry) => {
-  const selected = invItems.value.find(t => t.item === entry.item)
-  if (selected && entry.quantity > selected.stock) {
-    stockError.value = 'Out of stock'
-  } else {
-    stockError.value = null
-  }
-}
-
-const getItemsInventory = async () => {
-  const response = await get('/inventory')
-  if (response.status === 200) invItems.value = response.data
-}
-
-const getItems = async () => {
-  const response = await get('/items')
-  if (response.status === 200) items.value = response.data
-}
 
 onMounted(async () => {
-  await getItemsInventory()
-  await getItems()
+  const response = await get('/customers')
+  if (response.status === 200) {
+    customers.value = response.data
+  }
+})
+onMounted(async () => {
+  const response = await get('/items')
+  if (response.status === 200) {
+    items.value = response.data
+  }
 })
 
-watch(() => props.isVisible, (val) => showModal.value = val)
+// Keep localModel in sync
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    localModel.value = { ...newValue }
+  },
+  { deep: true, immediate: true }
+)
+
+// Sync visibility
+watch(
+  () => props.isVisible,
+  (val) => {
+    visible.value = val
+  }
+)
+
+watch(visible, (val) => {
+  emit('update:isVisible', val)
+})
+
+const handleSubmit = () => {
+  emit('update:modelValue', localModel.value)
+  emit('submit')
+}
+
+const handleClose = () => {
+  emit('close')
+}
 </script>
